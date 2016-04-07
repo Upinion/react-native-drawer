@@ -148,6 +148,7 @@ class Drawer extends Component {
   updatePosition = () => {
     let mainProps = {}
     let drawerProps = {}
+    let mainOverlayProps = {}
     let ratio = (this._left - this._offsetClosed) / (this.getOpenLeft() - this._offsetClosed)
 
     switch (this.props.type) {
@@ -165,16 +166,16 @@ class Drawer extends Component {
         break
     }
 
-    let mainOverlayProps = null
+
     if (this.props.tweenHandler) {
       let propsFrag = this.props.tweenHandler(ratio, this.props.side)
       mainProps = Object.assign(mainProps, propsFrag.main)
       drawerProps = Object.assign(drawerProps, propsFrag.drawer)
-      mainOverlayProps = propsFrag.mainOverlay
+      mainOverlayProps = Object.assign(mainOverlayProps, propsFrag.mainOverlay)
     }
     this.drawer.setNativeProps({style: drawerProps})
     this.main.setNativeProps({style: mainProps})
-    if (mainOverlayProps) this.mainOverlay.setNativeProps({style: mainOverlayProps})
+    this.mainOverlay.setNativeProps({style: mainOverlayProps})
   };
 
   shouldOpenDrawer = (dx) => {
@@ -381,13 +382,11 @@ class Drawer extends Component {
         style={[this.stylesheet.main, {height: this.getHeight(), width: this.getMainWidth()}]}
         >
         {this.props.children}
-        {this.captureGestures !== false
-          ? <View
-              pointerEvents={ this._open && this.shouldCaptureGestures() ? 'auto' : 'none' }
-              ref={c => this.mainOverlay = c}
-              style={[styles.mainOverlay, this.props.styles && this.props.styles.mainOverlay]}
-              />
-          : null}
+        <View
+            pointerEvents={ this._open && this.shouldCaptureGestures() ? 'auto' : 'none' }
+            ref={c => this.mainOverlay = c}
+            style={[this.stylesheet.mainOverlay]}
+            />
       </View>
     )
   };
@@ -458,6 +457,15 @@ class Drawer extends Component {
       position: 'absolute',
       top: 0,
     }, {borderWidth:0}, this.props.styles.drawer)
+
+    styles.mainOverlay = Object.assign({
+      right: 0,
+      left: 0,
+      top: 0,
+      bottom: 0,
+      position: 'absolute',
+      backgroundColor: 'transparent'
+    }, this.props.styles.mainOverlay)
 
     if (props.initializeOpen || props.open) { // open
       this._open = true
