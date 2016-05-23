@@ -222,7 +222,6 @@ export default class Drawer extends Component {
         break
     }
 
-    let mainOverlayProps = null
     let drawerOverlayProps = null
     if (this.props.tweenHandler) {
       let propsFrag = this.props.tweenHandler(ratio, this.props.side)
