@@ -3,8 +3,6 @@
 
 React native drawer, configurable to achieve material design style, slack style, parallax, and more. Works in both iOS and Android.
 
-[**2.0** has just been released](https://github.com/root-two/react-native-drawer/releases/tag/v2). We need help testing all use cases and updating recipes and documentation accordingly. Open an issue with questions or a PR with updates!
-
 [![npm version](https://img.shields.io/npm/v/react-native-drawer.svg?style=flat-square)](https://www.npmjs.com/package/react-native-drawer)
 [![npm downloads](https://img.shields.io/npm/dm/react-native-drawer.svg?style=flat-square)](https://www.npmjs.com/package/react-native-drawer)
 
@@ -16,7 +14,7 @@ React native drawer, configurable to achieve material design style, slack style,
 - [Credits](#credits)
 
 ### Installation
-`npm install react-native-drawer`
+`npm install --save react-native-drawer`
 
 ### Usage
 ```javascript
@@ -32,7 +30,7 @@ class Application extends Component {
   render () {
     return (
       <Drawer
-        ref={(ref) => this._drawer = ref)}
+        ref={(ref) => this._drawer = ref}
         content={<ControlPanel />}
         >
         <MainView />
@@ -49,7 +47,7 @@ class Application extends Component {
   type="static"
   content={<ControlPanel />}
   openDrawerOffset={100}
-  styles={{main: {shadowColor: "#000000", shadowOpacity: 0.4, shadowRadius: 3}}}
+  styles={drawerStyles}
   tweenHandler={Drawer.tweenPresets.parallax}
   >
     <Main />
@@ -63,16 +61,18 @@ class Application extends Component {
   openDrawerOffset={0.2} // 20% gap on the right side of drawer
   panCloseMask={0.2}
   closedDrawerOffset={-3}
-  styles={{
-    drawer: {shadowColor: '#000000', shadowOpacity: 0.8, shadowRadius: 3},
-    main: {paddingLeft: 3}
-  }}
+  styles={drawerStyles}
   tweenHandler={(ratio) => ({
     main: { opacity:(2-ratio)/2 }
   })}
   >
     <Main />
 </Drawer>
+
+const drawerStyles = StyleSheet.create({
+  drawer: { shadowColor: '#000000', shadowOpacity: 0.8, shadowRadius: 3},
+  main: {paddingLeft: 3},
+})
 ```
 
 ### Props
@@ -80,10 +80,11 @@ This module supports a wide range of drawer styles, and hence has *a lot* of pro
 ##### Important
 - `content` (React.Component) `null` - Menu component
 - `type` (String: displace:overlay:static) `displace`- Type of drawer.
-- `openDrawerOffset` (Number) `0` - Can either be a integer (pixel value) or decimal (ratio of screen width). Defines the right hand margin when the drawer is open.
-- `closedDrawerOffset` (Number) `0` - Same as openDrawerOffset, except defines left hand margin when drawer is closed.
+- `open` (Boolean) `null` - If true will trigger drawer open, if false will trigger close.
+- `openDrawerOffset` (Number|Function) `0` - Can either be a integer (pixel value) or decimal (ratio of screen width). Defines the right hand margin when the drawer is open. Or, can be function which returns offset: `(viewport) => viewport.width - 200`
+- `closedDrawerOffset` (Number|Function) `0` - Same as openDrawerOffset, except defines left hand margin when drawer is closed.
 - `disabled` (Boolean) `false` - If true the drawer can not be opened and will not respond to pans.
-- `styles` (Object) `null` - Styles for the drawer, main and mainOverlay container Views.
+- `styles` (Object) `null` - Styles for the drawer, main, drawerOverlay and mainOverlay container Views.
 
 ##### Animation / Tween
 **Note**: In the future animations with use Animated, and the api will change.
@@ -111,6 +112,7 @@ This module supports a wide range of drawer styles, and hence has *a lot* of pro
 - `panCloseMask` (Number) `null` - Ratio of screen width that is valid for the start of a pan close action. If null -> defaults to `max(.05, openDrawerOffset)`.
 - `initializeOpen` (Boolean) `false` - Initialize with drawer open?
 - `side` (String left|right) `left` - which side the drawer should be on.
+- `useInteractionManager` (Boolean) `false` - if true will run InteractionManager for open/close animations.
 
 ### Tween Handler
 You can achieve pretty much any animation you want using the tween handler with the transformMatrix property. E.G.
@@ -137,16 +139,23 @@ tweenHandler={(ratio) => {
 Will result in a skewed fade out animation.
 
 ### Opening & Closing the Drawer Programmatically
-Two options:
+Three options:
 
-1. Using the Drawer Ref:
+1. Use the open prop (controlled mode):  
+
+    ```js
+    <Drawer
+      open={true}
+    ```
+
+2. Using the Drawer Ref:
 
     ```js
     // assuming ref is set up on the drawer as (ref) => this._drawer = ref
     onPress={() => {this._drawer.open()}}
     ```
 
-2. Using Context
+3. Using Context
 
     ```js
     contextTypes = {drawer: React.PropTypes.object}

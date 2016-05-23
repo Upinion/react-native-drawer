@@ -40,10 +40,14 @@ export default class App extends Component {
           console.log('onclose')
           this.setState({drawerOpen: false})
         }}
+        captureGestures={false}
         tweenDuration={100}
         panThreshold={0.08}
         disabled={this.state.drawerDisabled}
-        openDrawerOffset={0.2}
+        openDrawerOffset={(viewport) => {
+          return 100
+        }}
+        closedDrawerOffset={() => 50}
         panOpenMask={0.2}
         negotiatePan
         >
